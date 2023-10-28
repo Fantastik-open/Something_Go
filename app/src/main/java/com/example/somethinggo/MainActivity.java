@@ -1,5 +1,7 @@
 package com.example.somethinggo;
 
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -15,6 +17,11 @@ import com.example.somethinggo.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private Sensor gyroscope;
+    private Sensor magnetometer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
