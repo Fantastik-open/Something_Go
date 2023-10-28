@@ -73,19 +73,35 @@ public class MainActivity extends AppCompatActivity {
         float[] accelOutput;
         float[] magOutput;
         float[] gyroOutput;
+        float[] smoothedAccel = new float[3];
+        float[] smoothedMag = new float[3];
+        float[] smoothedGyro = new float[3];
+        float alpha = 0.1f; // Smoothing factor (adjust as needed)
         float azimuth;
 
         @Override
         public void onSensorChanged(SensorEvent event) {
             switch (event.sensor.getType()) {
                 case Sensor.TYPE_ACCELEROMETER:
-                    accelOutput = event.values;
+                    // Apply low-pass filter to accelerometer data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedAccel[i] = alpha * event.values[i] + (1 - alpha) * smoothedAccel[i];
+                    }
+                    accelOutput = smoothedAccel;
                     break;
                 case Sensor.TYPE_MAGNETIC_FIELD:
-                    magOutput = event.values;
+                    // Apply low-pass filter to magnetometer data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedMag[i] = alpha * event.values[i] + (1 - alpha) * smoothedMag[i];
+                    }
+                    magOutput = smoothedMag;
                     break;
                 case Sensor.TYPE_GYROSCOPE:
-                    gyroOutput = event.values; // Use this for movement detection
+                    // Apply low-pass filter to gyroscope data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedGyro[i] = alpha * event.values[i] + (1 - alpha) * smoothedGyro[i];
+                    }
+                    gyroOutput = smoothedGyro;
                     break;
             }
 
@@ -96,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 if (success) {
                     float[] orientation = new float[3];
                     SensorManager.getOrientation(R, orientation);
-                    azimuth = orientation[0]; // compass direction
+                    azimuth = orientation[1]; // compass direction
                     // Use the azimuth for your compass functionality
                 }
             }
@@ -134,14 +150,14 @@ public class MainActivity extends AppCompatActivity {
         if (accelerometer != null) {
             sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
-
         if (magnetometer != null) {
             sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
         }
-
         if (gyroscope != null) {
             sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_UI);
         }
+
+
     }
 
 
