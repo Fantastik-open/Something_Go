@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     EditText GyroXText;
     EditText GyroYText;
     EditText GyroZText;
+    EditText HeadingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         GyroXText = findViewById(R.id.GyroX);
         GyroYText = findViewById(R.id.GyroY);
         GyroZText = findViewById(R.id.GyroZ);
+        HeadingText = findViewById(R.id.heading);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         float[] accelOutput;
         float[] magOutput;
         float[] gyroOutput;
+        float azimuth;
 
         @Override
         public void onSensorChanged(SensorEvent event) {
@@ -86,6 +89,18 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
+            if (accelOutput != null && magOutput != null) {
+                float[] R = new float[9];
+                float[] I = new float[9];
+                boolean success = SensorManager.getRotationMatrix(R, I, accelOutput, magOutput);
+                if (success) {
+                    float[] orientation = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+                    azimuth = orientation[0]; // compass direction
+                    // Use the azimuth for your compass functionality
+                }
+            }
+
             try {
                 // Update the EditText fields with the new sensor data
                 runOnUiThread(new Runnable() {
@@ -97,22 +112,11 @@ public class MainActivity extends AppCompatActivity {
                         GyroXText.setText(String.valueOf(gyroOutput[0]));
                         GyroYText.setText(String.valueOf(gyroOutput[1]));
                         GyroZText.setText(String.valueOf(gyroOutput[2]));
+                        HeadingText.setText(String.valueOf((Math.toDegrees(azimuth) + 360) % 360));
                     }
                 });
             } catch (Exception e) {
                 e.printStackTrace(); // Log the exception for debugging
-            }
-
-            if (accelOutput != null && magOutput != null) {
-                float[] R = new float[9];
-                float[] I = new float[9];
-                boolean success = SensorManager.getRotationMatrix(R, I, accelOutput, magOutput);
-                if (success) {
-                    float[] orientation = new float[3];
-                    SensorManager.getOrientation(R, orientation);
-                    float azimuth = orientation[0]; // compass direction
-                    // Use the azimuth for your compass functionality
-                }
             }
         }
 
@@ -122,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+
     @Override
     protected void onResume() {
         super.onResume();
