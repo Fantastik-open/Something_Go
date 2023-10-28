@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 if (success) {
                     float[] orientation = new float[3];
                     SensorManager.getOrientation(R, orientation);
-                    azimuth = orientation[1]; // compass direction
+                    azimuth = orientation[0]; // compass direction
                     // Use the azimuth for your compass functionality
                 }
             }
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         GyroXText.setText(String.valueOf(gyroOutput[0]));
                         GyroYText.setText(String.valueOf(gyroOutput[1]));
                         GyroZText.setText(String.valueOf(gyroOutput[2]));
-                        HeadingText.setText(String.valueOf((Math.toDegrees(azimuth) + 360) % 360));
+                        HeadingText.setText(String.valueOf((Math.toDegrees(azimuth))));
                     }
                 });
             } catch (Exception e) {
@@ -148,13 +148,13 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if (accelerometer != null) {
-            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
         if (magnetometer != null) {
-            sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
         if (gyroscope != null) {
-            sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
 
