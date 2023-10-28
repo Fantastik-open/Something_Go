@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
 import android.os.Bundle;
+import android.widget.EditText;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -17,6 +18,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.somethinggo.databinding.ActivityMainBinding;
 
+import java.lang.reflect.Array;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
@@ -24,6 +27,13 @@ public class MainActivity extends AppCompatActivity {
     private Sensor accelerometer;
     private Sensor gyroscope;
     private Sensor magnetometer;
+
+    EditText AccelXText = findViewById(R.id.AccelX);
+    EditText AccelYText = findViewById(R.id.AccelY);
+    EditText AccelZText = findViewById(R.id.AccelZ);
+    EditText GyroXText = findViewById(R.id.GyroX);
+    EditText GyroYText = findViewById(R.id.GyroY);
+    EditText GyroZText = findViewById(R.id.GyroZ);
 
 
     @Override
@@ -69,6 +79,13 @@ public class MainActivity extends AppCompatActivity {
                     gyroOutput = event.values; // Use this for movement detection
                     break;
             }
+
+            AccelXText.setText(String.valueOf(accelOutput[0]));
+            AccelYText.setText(String.valueOf(accelOutput[1]));
+            AccelZText.setText(String.valueOf(accelOutput[2]));
+            GyroXText.setText(String.valueOf(gyroOutput[0]));
+            GyroYText.setText(String.valueOf(gyroOutput[1]));
+            GyroZText.setText(String.valueOf(gyroOutput[2]));
 
             if (accelOutput != null && magOutput != null) {
                 float[] R = new float[9];
