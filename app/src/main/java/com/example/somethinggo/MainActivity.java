@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     EditText GyroXText;
     EditText GyroYText;
     EditText GyroZText;
+    EditText HeadingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         GyroXText = findViewById(R.id.GyroX);
         GyroYText = findViewById(R.id.GyroY);
         GyroZText = findViewById(R.id.GyroZ);
+        HeadingText = findViewById(R.id.heading);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -71,19 +73,48 @@ public class MainActivity extends AppCompatActivity {
         float[] accelOutput;
         float[] magOutput;
         float[] gyroOutput;
+        float[] smoothedAccel = new float[3];
+        float[] smoothedMag = new float[3];
+        float[] smoothedGyro = new float[3];
+        float alpha = 0.1f; // Smoothing factor (adjust as needed)
+        float azimuth;
 
         @Override
         public void onSensorChanged(SensorEvent event) {
             switch (event.sensor.getType()) {
                 case Sensor.TYPE_ACCELEROMETER:
-                    accelOutput = event.values;
+                    // Apply low-pass filter to accelerometer data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedAccel[i] = alpha * event.values[i] + (1 - alpha) * smoothedAccel[i];
+                    }
+                    accelOutput = smoothedAccel;
                     break;
                 case Sensor.TYPE_MAGNETIC_FIELD:
-                    magOutput = event.values;
+                    // Apply low-pass filter to magnetometer data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedMag[i] = alpha * event.values[i] + (1 - alpha) * smoothedMag[i];
+                    }
+                    magOutput = smoothedMag;
                     break;
                 case Sensor.TYPE_GYROSCOPE:
-                    gyroOutput = event.values; // Use this for movement detection
+                    // Apply low-pass filter to gyroscope data
+                    for (int i = 0; i < 3; i++) {
+                        smoothedGyro[i] = alpha * event.values[i] + (1 - alpha) * smoothedGyro[i];
+                    }
+                    gyroOutput = smoothedGyro;
                     break;
+            }
+
+            if (accelOutput != null && magOutput != null) {
+                float[] R = new float[9];
+                float[] I = new float[9];
+                boolean success = SensorManager.getRotationMatrix(R, I, accelOutput, magOutput);
+                if (success) {
+                    float[] orientation = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+                    azimuth = orientation[1]; // compass direction
+                    // Use the azimuth for your compass functionality
+                }
             }
 
             try {
@@ -97,22 +128,11 @@ public class MainActivity extends AppCompatActivity {
                         GyroXText.setText(String.valueOf(gyroOutput[0]));
                         GyroYText.setText(String.valueOf(gyroOutput[1]));
                         GyroZText.setText(String.valueOf(gyroOutput[2]));
+                        HeadingText.setText(String.valueOf((Math.toDegrees(azimuth) + 360) % 360));
                     }
                 });
             } catch (Exception e) {
                 e.printStackTrace(); // Log the exception for debugging
-            }
-
-            if (accelOutput != null && magOutput != null) {
-                float[] R = new float[9];
-                float[] I = new float[9];
-                boolean success = SensorManager.getRotationMatrix(R, I, accelOutput, magOutput);
-                if (success) {
-                    float[] orientation = new float[3];
-                    SensorManager.getOrientation(R, orientation);
-                    float azimuth = orientation[0]; // compass direction
-                    // Use the azimuth for your compass functionality
-                }
             }
         }
 
@@ -122,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -129,14 +150,14 @@ public class MainActivity extends AppCompatActivity {
         if (accelerometer != null) {
             sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
-
         if (magnetometer != null) {
             sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
         }
-
         if (gyroscope != null) {
             sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_UI);
         }
+
+
     }
 
 

@@ -121,4 +121,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <EditText
+        android:id="@+id/heading"
+        android:layout_width="100dp"
+        android:layout_height="43dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="652dp"
+        android:contextClickable="false"
+        android:editable="true"
+        android:ems="10"
+        android:hapticFeedbackEnabled="true"
+        android:inputType="textPersonName"
+        android:text="Name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
