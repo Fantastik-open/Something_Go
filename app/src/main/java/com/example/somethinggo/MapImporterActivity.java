@@ -40,7 +40,7 @@ public class MapImporterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_importer); // Assuming this is your layout name
 
-        capturedImageView = findViewById(R.id.captured_map);
+        capturedImageView = findViewById(R.id.captured_map2);
         // Any other initialization can go here.
     }
 
