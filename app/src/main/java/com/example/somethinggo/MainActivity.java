@@ -156,8 +156,6 @@ public class MainActivity extends AppCompatActivity {
         if (gyroscope != null) {
             sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
-
-
     }
 
 
