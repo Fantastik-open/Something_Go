@@ -1,0 +1,6 @@
+<ImageView android:id="@+id/captured_map"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:contentDescription="@string/captured_map"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    />

@@ -73,10 +73,10 @@ public class MainActivity extends AppCompatActivity {
         float[] accelOutput;
         float[] magOutput;
         float[] gyroOutput;
-        float[] smoothedAccel = new float[3];
-        float[] smoothedMag = new float[3];
-        float[] smoothedGyro = new float[3];
-        float alpha = 0.1f; // Smoothing factor (adjust as needed)
+        final float[] smoothedAccel = new float[3];
+        final float[] smoothedMag = new float[3];
+        final float[] smoothedGyro = new float[3];
+        final float alpha = 0.1f; // Smoothing factor (adjust as needed)
         float azimuth;
 
         @Override

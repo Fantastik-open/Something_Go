@@ -14,11 +14,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
 public class MapImporterActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 1234;
+    private ImageView capturedImageView; // Declare the ImageView
 
     // Define this as an instance variable
     private final ActivityResultLauncher<Intent> mTakePictureLauncher = registerForActivityResult(
@@ -28,9 +30,19 @@ public class MapImporterActivity extends AppCompatActivity {
                     Bundle extras = result.getData().getExtras();
                     assert extras != null;
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    // You now have the bitmap image. Process or store it as needed.
+
+                    // Set the image to the ImageView here
+                    capturedImageView.setImageBitmap(imageBitmap);
                 }
             });
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map_importer); // Assuming this is your layout name
+
+        capturedImageView = findViewById(R.id.captured_map);
+        // Any other initialization can go here.
+    }
 
     private void checkCameraPermissionAndTakePicture() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -60,5 +72,5 @@ public class MapImporterActivity extends AppCompatActivity {
             mTakePictureLauncher.launch(takePictureIntent);
         }
     }
-
 }
+
