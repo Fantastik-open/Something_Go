@@ -28,13 +28,12 @@ public class MainActivity extends AppCompatActivity {
     private Sensor gyroscope;
     private Sensor magnetometer;
 
-    EditText AccelXText = findViewById(R.id.AccelX);
-    EditText AccelYText = findViewById(R.id.AccelY);
-    EditText AccelZText = findViewById(R.id.AccelZ);
-    EditText GyroXText = findViewById(R.id.GyroX);
-    EditText GyroYText = findViewById(R.id.GyroY);
-    EditText GyroZText = findViewById(R.id.GyroZ);
-
+    EditText AccelXText;
+    EditText AccelYText;
+    EditText AccelZText;
+    EditText GyroXText;
+    EditText GyroYText;
+    EditText GyroZText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,13 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        AccelXText = findViewById(R.id.AccelX);
+        AccelYText = findViewById(R.id.AccelY);
+        AccelZText = findViewById(R.id.AccelZ);
+        GyroXText = findViewById(R.id.GyroX);
+        GyroYText = findViewById(R.id.GyroY);
+        GyroZText = findViewById(R.id.GyroZ);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -80,12 +86,22 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            AccelXText.setText(String.valueOf(accelOutput[0]));
-            AccelYText.setText(String.valueOf(accelOutput[1]));
-            AccelZText.setText(String.valueOf(accelOutput[2]));
-            GyroXText.setText(String.valueOf(gyroOutput[0]));
-            GyroYText.setText(String.valueOf(gyroOutput[1]));
-            GyroZText.setText(String.valueOf(gyroOutput[2]));
+            try {
+                // Update the EditText fields with the new sensor data
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AccelXText.setText(String.valueOf(accelOutput[0]));
+                        AccelYText.setText(String.valueOf(accelOutput[1]));
+                        AccelZText.setText(String.valueOf(accelOutput[2]));
+                        GyroXText.setText(String.valueOf(gyroOutput[0]));
+                        GyroYText.setText(String.valueOf(gyroOutput[1]));
+                        GyroZText.setText(String.valueOf(gyroOutput[2]));
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace(); // Log the exception for debugging
+            }
 
             if (accelOutput != null && magOutput != null) {
                 float[] R = new float[9];
@@ -111,15 +127,15 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if (accelerometer != null) {
-            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
 
         if (magnetometer != null) {
-            sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
         }
 
         if (gyroscope != null) {
-            sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(sensorEventListener, gyroscope, SensorManager.SENSOR_DELAY_UI);
         }
     }
 
