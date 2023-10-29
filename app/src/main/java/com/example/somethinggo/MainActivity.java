@@ -28,13 +28,13 @@ public class MainActivity extends AppCompatActivity {
     private Sensor gyroscope;
     private Sensor magnetometer;
 
-    EditText AccelXText;
-    EditText AccelYText;
-    EditText AccelZText;
-    EditText GyroXText;
-    EditText GyroYText;
-    EditText GyroZText;
-    EditText HeadingText;
+    // EditText AccelXText;
+    // EditText AccelYText;
+    // EditText AccelZText;
+    // EditText GyroXText;
+    // EditText GyroYText;
+    // EditText GyroZText;
+    // EditText HeadingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        AccelXText = findViewById(R.id.AccelX);
-        AccelYText = findViewById(R.id.AccelY);
-        AccelZText = findViewById(R.id.AccelZ);
-        GyroXText = findViewById(R.id.GyroX);
-        GyroYText = findViewById(R.id.GyroY);
-        GyroZText = findViewById(R.id.GyroZ);
-        HeadingText = findViewById(R.id.heading);
+        // AccelXText = findViewById(R.id.AccelX);
+        // AccelYText = findViewById(R.id.AccelY);
+        // AccelZText = findViewById(R.id.AccelZ);
+        // GyroXText = findViewById(R.id.GyroX);
+        // GyroYText = findViewById(R.id.GyroY);
+        // GyroZText = findViewById(R.id.GyroZ);
+        // HeadingText = findViewById(R.id.heading);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -122,13 +122,13 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        AccelXText.setText(String.valueOf(accelOutput[0]));
-                        AccelYText.setText(String.valueOf(accelOutput[1]));
-                        AccelZText.setText(String.valueOf(accelOutput[2]));
-                        GyroXText.setText(String.valueOf(gyroOutput[0]));
-                        GyroYText.setText(String.valueOf(gyroOutput[1]));
-                        GyroZText.setText(String.valueOf(gyroOutput[2]));
-                        HeadingText.setText(String.valueOf((Math.toDegrees(azimuth))));
+                        // AccelXText.setText(String.valueOf(accelOutput[0]));
+                        // AccelYText.setText(String.valueOf(accelOutput[1]));
+                        // AccelZText.setText(String.valueOf(accelOutput[2]));
+                        // GyroXText.setText(String.valueOf(gyroOutput[0]));
+                        // GyroYText.setText(String.valueOf(gyroOutput[1]));
+                        // GyroZText.setText(String.valueOf(gyroOutput[2]));
+                        // HeadingText.setText(String.valueOf((Math.toDegrees(azimuth))));
                     }
                 });
             } catch (Exception e) {
