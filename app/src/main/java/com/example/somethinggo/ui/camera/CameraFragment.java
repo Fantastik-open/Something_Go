@@ -26,7 +26,9 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.somethinggo.R;
 import com.example.somethinggo.databinding.FragmentCameraBinding;
+import com.example.somethinggo.ui.drawing.DrawingFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,24 +51,23 @@ public class CameraFragment extends Fragment {
     // Define a member variable for the image file URI
     private Uri imageUri;
 
-    public CameraFragment() {
-        image = new File(String.valueOf(imageUri));
-    }
+    public static File imageFile;
 
     // Method to create a file to store the image
+
+    // Remove the default constructor - it's unnecessary.
+
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        image = File.createTempFile(
+        imageFile = File.createTempFile(
                 imageFileName,
                 ".jpg",
                 storageDir
         );
-        image  = image;
-        imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);
-
-        return image;
+        imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", imageFile);
+        return imageFile;
     }
 
     // Method to launch the camera intent
@@ -93,14 +94,14 @@ public class CameraFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    // The image URI should now point to the full-sized image
-                    binding.CameraView.setImageURI(imageUri);
-
-                    // Inside your mTakePictureLauncher callback, after setting the image:
-                    binding.saveButton.setVisibility(View.VISIBLE);
-                    binding.retakeButton.setVisibility(View.VISIBLE);
-
+                    DrawingFragment drawingFragment = new DrawingFragment();
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, drawingFragment)  // 'fragment_container' is your fragment container ID
+                            .addToBackStack(null)
+                            .commit();
                 }
+
+
             });
 
     // Called to have the fragment instantiate its user interface view.

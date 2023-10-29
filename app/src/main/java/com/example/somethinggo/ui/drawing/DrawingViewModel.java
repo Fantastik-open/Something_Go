@@ -13,7 +13,7 @@ public class DrawingViewModel extends ViewModel {
     public DrawingViewModel() {
         imageBitmap = new MutableLiveData<>();
         mText = new MutableLiveData<>();
-        mText.setValue("This is drawing fragment");
+//        mText.setValue("This is drawing fragment");
     }
 
     public LiveData<Bitmap> getImage() {
