@@ -35,6 +35,7 @@ import java.io.IOException;
 // The CameraFragment class represents the fragment responsible for handling camera functionalities.
 public class CameraFragment extends Fragment {
 
+    public static File image;
     // Binding object for the fragment's view.
     private FragmentCameraBinding binding;
     // ViewModel instance to manage the UI-related data in a lifecycle-conscious way.
@@ -48,16 +49,21 @@ public class CameraFragment extends Fragment {
     // Define a member variable for the image file URI
     private Uri imageUri;
 
+    public CameraFragment() {
+        image = new File(String.valueOf(imageUri));
+    }
+
     // Method to create a file to store the image
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
+        image = File.createTempFile(
                 imageFileName,
                 ".jpg",
                 storageDir
         );
+        this.image  = image;
         imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);
 
         return image;
@@ -93,11 +99,9 @@ public class CameraFragment extends Fragment {
                     // Inside your mTakePictureLauncher callback, after setting the image:
                     binding.saveButton.setVisibility(View.VISIBLE);
                     binding.retakeButton.setVisibility(View.VISIBLE);
+
                 }
             });
-
-
-
 
     // Called to have the fragment instantiate its user interface view.
     public View onCreateView(@NonNull LayoutInflater inflater,
