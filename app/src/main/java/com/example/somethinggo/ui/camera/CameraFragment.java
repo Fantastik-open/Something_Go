@@ -63,7 +63,7 @@ public class CameraFragment extends Fragment {
                 ".jpg",
                 storageDir
         );
-        this.image  = image;
+        image  = image;
         imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);
 
         return image;
@@ -115,7 +115,9 @@ public class CameraFragment extends Fragment {
         cameraViewModel.getText().observe(getViewLifecycleOwner(), binding.textCamera::setText);
 
         // Set an OnClickListener for the ImageView to check for camera permissions and take a picture.
-        binding.CameraView.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
+        // binding.CameraView.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
+
+        binding.captureButton.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
 
         binding.saveButton.setOnClickListener(v -> {
             // You can save the image to a permanent location, or do any other actions as required.

@@ -39,7 +39,7 @@ public class DrawingFragment extends Fragment {
 
         // Load your image into the PhotoView
         PhotoView photoView = binding.photoView;
-        imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);/* Your image URI here */;
+        imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);/* Your image URI here */
 
         Picasso.get().load(imageUri).into(photoView);
 
