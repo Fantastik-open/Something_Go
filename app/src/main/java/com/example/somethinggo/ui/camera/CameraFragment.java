@@ -17,7 +17,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,13 +27,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+// The CameraFragment class represents the fragment responsible for handling camera functionalities.
 public class CameraFragment extends Fragment {
 
+    // Binding object for the fragment's view.
     private FragmentCameraBinding binding;
+    // ViewModel instance to manage the UI-related data in a lifecycle-conscious way.
     private CameraViewModel cameraViewModel;
+    // Constants used for permissions.
     private static final int REQUEST_CAMERA_PERMISSION = 1234;
+    private static final int REQUEST_STORAGE_PERMISSION = 4321;
 
-    // Define this as an instance variable
+    // Launcher for receiving results from the camera intent.
     private final ActivityResultLauncher<Intent> mTakePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -43,52 +47,65 @@ public class CameraFragment extends Fragment {
                     assert extras != null;
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
 
-                    // Set the image to the ImageView here
+                    // Set the captured image to the ImageView
                     binding.CameraView.setImageBitmap(imageBitmap);
 
-                    // Save the bitmap
-                    saveBitmap(imageBitmap, "capturedImage.jpg");
-
+                    // Show the save and retake buttons
+                    binding.saveButton.setVisibility(View.VISIBLE);
+                    binding.retakeButton.setVisibility(View.VISIBLE);
                 }
             });
 
+
+    // Called to have the fragment instantiate its user interface view.
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment.
         binding = FragmentCameraBinding.inflate(inflater, container, false);
 
+        // Retrieve ViewModel instance.
         cameraViewModel = new ViewModelProvider(this).get(CameraViewModel.class);
+        // Observe changes to the text and update the TextView accordingly.
         cameraViewModel.getText().observe(getViewLifecycleOwner(), binding.textCamera::setText);
 
-        binding.CameraView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkCameraPermissionAndTakePicture();
-            }
-        });
+        // Set an OnClickListener for the ImageView to check for camera permissions and take a picture.
+        binding.CameraView.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
 
         return binding.getRoot();
     }
 
+    // Method to check for camera and storage permissions and request if they are not granted.
+    // Method to check for camera and storage permissions and request if they are not granted.
     private void checkCameraPermissionAndTakePicture() {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-            } else {
-                dispatchTakePictureIntent();
-            }
-    }
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent();
-            } else {
-                Toast.makeText(requireContext(), "Camera permission is required for this functionality.", Toast.LENGTH_SHORT).show();
+            // If permissions were previously denied, show rationale to the user.
+            if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ||
+                    shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(requireContext(), "These permissions are necessary to capture and save the image. Please grant them.", Toast.LENGTH_LONG).show();
             }
+
+            // Request the permissions
+            requestPermissionLauncher.launch(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE});
+        } else {
+            dispatchTakePictureIntent();
         }
     }
 
+    // Launcher to handle the result of permission request.
+    private final ActivityResultLauncher<String[]> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                // Check if camera permission has been granted.
+                Boolean isCameraGranted = result.get(Manifest.permission.CAMERA);
+                if (isCameraGranted != null && isCameraGranted) {
+                    dispatchTakePictureIntent();
+                } else {
+                    Toast.makeText(requireContext(), "Camera permission is required for this functionality.", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    // Method to launch the camera intent.
     @SuppressLint("QueryPermissionsNeeded")
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -97,15 +114,15 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    // Method to save the captured image as a bitmap to external storage.
     public void saveBitmap(Bitmap bitmap, String filename) {
+        // Get the public pictures directory.
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File imageFile = new File(directory, filename);
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(imageFile);
+        // Save the bitmap to a file.
+        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.close();
             Toast.makeText(requireContext(), "Image saved at: " + imageFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             Toast.makeText(requireContext(), "Error saving the image!", Toast.LENGTH_SHORT).show();
@@ -113,6 +130,7 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    // Cleanup resources when the view is destroyed.
     @Override
     public void onDestroyView() {
         super.onDestroyView();
