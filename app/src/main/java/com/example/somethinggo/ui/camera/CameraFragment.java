@@ -22,6 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -57,7 +58,8 @@ public class CameraFragment extends Fragment {
                 ".jpg",
                 storageDir
         );
-        imageUri = Uri.fromFile(image);
+        imageUri = FileProvider.getUriForFile(requireContext(), "com.example.somethinggo.fileprovider", image);
+
         return image;
     }
 
@@ -91,9 +93,9 @@ public class CameraFragment extends Fragment {
                     // Inside your mTakePictureLauncher callback, after setting the image:
                     binding.saveButton.setVisibility(View.VISIBLE);
                     binding.retakeButton.setVisibility(View.VISIBLE);
-
                 }
             });
+
 
 
 
@@ -110,8 +112,6 @@ public class CameraFragment extends Fragment {
 
         // Set an OnClickListener for the ImageView to check for camera permissions and take a picture.
         binding.CameraView.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
-
-
 
         binding.saveButton.setOnClickListener(v -> {
             // You can save the image to a permanent location, or do any other actions as required.
@@ -151,16 +151,16 @@ public class CameraFragment extends Fragment {
             dispatchTakePictureIntent();
         }
     }
-
     // Launcher to handle the result of permission request.
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                // Check if camera permission has been granted.
                 Boolean isCameraGranted = result.get(Manifest.permission.CAMERA);
-                if (isCameraGranted != null && isCameraGranted) {
+                Boolean isStorageGranted = result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (isCameraGranted != null && isCameraGranted &&
+                        isStorageGranted != null && isStorageGranted) {
                     dispatchTakePictureIntent();
                 } else {
-                    Toast.makeText(requireContext(), "Camera permission is required for this functionality.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Both camera and storage permissions are required for this functionality.", Toast.LENGTH_SHORT).show();
                 }
             });
 
