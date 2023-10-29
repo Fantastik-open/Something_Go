@@ -13,6 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.net.Uri;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -39,22 +43,58 @@ public class CameraFragment extends Fragment {
     private static final int REQUEST_STORAGE_PERMISSION = 4321;
 
     // Launcher for receiving results from the camera intent.
+
+    // Define a member variable for the image file URI
+    private Uri imageUri;
+
+    // Method to create a file to store the image
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+        imageUri = Uri.fromFile(image);
+        return image;
+    }
+
+    // Method to launch the camera intent
+    @SuppressLint("QueryPermissionsNeeded")
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Handle error
+                Toast.makeText(requireContext(), "Error occurred while creating the file", Toast.LENGTH_SHORT).show();
+            }
+            if (photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                mTakePictureLauncher.launch(takePictureIntent);
+            }
+        }
+    }
+
+    // And then in your ActivityResultLauncher
     private final ActivityResultLauncher<Intent> mTakePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Bundle extras = result.getData().getExtras();
-                    assert extras != null;
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // The image URI should now point to the full-sized image
+                    binding.CameraView.setImageURI(imageUri);
 
-                    // Set the captured image to the ImageView
-                    binding.CameraView.setImageBitmap(imageBitmap);
-
-                    // Show the save and retake buttons
+                    // Inside your mTakePictureLauncher callback, after setting the image:
                     binding.saveButton.setVisibility(View.VISIBLE);
                     binding.retakeButton.setVisibility(View.VISIBLE);
+
                 }
             });
+
 
 
     // Called to have the fragment instantiate its user interface view.
@@ -70,6 +110,25 @@ public class CameraFragment extends Fragment {
 
         // Set an OnClickListener for the ImageView to check for camera permissions and take a picture.
         binding.CameraView.setOnClickListener(v -> checkCameraPermissionAndTakePicture());
+
+
+
+        binding.saveButton.setOnClickListener(v -> {
+            // You can save the image to a permanent location, or do any other actions as required.
+            Toast.makeText(requireContext(), "Image saved", Toast.LENGTH_SHORT).show();
+
+            // Optionally hide the save and retake buttons after saving
+            binding.saveButton.setVisibility(View.GONE);
+            binding.retakeButton.setVisibility(View.GONE);
+        });
+
+        binding.retakeButton.setOnClickListener(v -> {
+            // Relaunch the camera to retake the photo
+            checkCameraPermissionAndTakePicture();
+            binding.saveButton.setVisibility(View.GONE); // Hide the buttons until a new photo is taken
+            binding.retakeButton.setVisibility(View.GONE);
+        });
+
 
         return binding.getRoot();
     }
@@ -104,15 +163,6 @@ public class CameraFragment extends Fragment {
                     Toast.makeText(requireContext(), "Camera permission is required for this functionality.", Toast.LENGTH_SHORT).show();
                 }
             });
-
-    // Method to launch the camera intent.
-    @SuppressLint("QueryPermissionsNeeded")
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            mTakePictureLauncher.launch(takePictureIntent);
-        }
-    }
 
     // Method to save the captured image as a bitmap to external storage.
     public void saveBitmap(Bitmap bitmap, String filename) {
