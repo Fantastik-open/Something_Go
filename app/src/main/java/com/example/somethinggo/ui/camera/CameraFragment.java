@@ -7,13 +7,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,6 +23,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.somethinggo.databinding.FragmentCameraBinding;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class CameraFragment extends Fragment {
 
@@ -43,6 +45,10 @@ public class CameraFragment extends Fragment {
 
                     // Set the image to the ImageView here
                     binding.CameraView.setImageBitmap(imageBitmap);
+
+                    // Save the bitmap
+                    saveBitmap(imageBitmap, "capturedImage.jpg");
+
                 }
             });
 
@@ -64,11 +70,11 @@ public class CameraFragment extends Fragment {
     }
 
     private void checkCameraPermissionAndTakePicture() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        } else {
-            dispatchTakePictureIntent();
-        }
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                dispatchTakePictureIntent();
+            }
     }
 
     @Override
@@ -88,6 +94,22 @@ public class CameraFragment extends Fragment {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
             mTakePictureLauncher.launch(takePictureIntent);
+        }
+    }
+
+    public void saveBitmap(Bitmap bitmap, String filename) {
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File imageFile = new File(directory, filename);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.close();
+            Toast.makeText(requireContext(), "Image saved at: " + imageFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "Error saving the image!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
